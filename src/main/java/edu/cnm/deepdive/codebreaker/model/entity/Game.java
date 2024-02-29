@@ -1,5 +1,11 @@
 package edu.cnm.deepdive.codebreaker.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +31,8 @@ import org.springframework.lang.NonNull;
 
 @Entity
 @Table(indexes = @Index(columnList = "user_id, created"))
+@JsonInclude(Include.NON_NULL)
+@JsonPropertyOrder({"key", "user", "created", "length", "pool", "guesses", "solved", "secretCode"})
 public class Game {
 
   public static final int MAX_CODE_LENGTH = 12;
@@ -34,16 +42,19 @@ public class Game {
   @Id
   @GeneratedValue
   @Column(name = "game_id", nullable = false, updatable = false)
+  @JsonIgnore
   private Long id;
 
   @NonNull
   @Column(name = "external_key", nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
+  @JsonProperty(access = Access.READ_ONLY)
   private UUID key;
 
   @NonNull
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
+  @JsonProperty(access = Access.READ_ONLY)
   private Instant created;
 
   @Column(nullable = false, updatable = false)
@@ -55,16 +66,19 @@ public class Game {
 
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_CODE_LENGTH) // TODO: 2/28/2024 Investigate how database determines lengths.
+  @JsonIgnore
   private String secretCode;
 
   @NonNull
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   @JoinColumn(name = "user_id", nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private User user;
 
   @NonNull
   @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("created ASC")
+  @JsonProperty(access = Access.READ_ONLY)
   private final List<Guess> guesses = new LinkedList<>();
 
   @NonNull
@@ -119,6 +133,17 @@ public class Game {
 
   public List<Guess> getGuesses() {
     return guesses;
+  }
+
+  public boolean isSolved() {
+    return guesses
+        .stream()
+        .anyMatch(Guess::isSolution);
+  }
+
+  @JsonProperty("secretCode")
+  public String getCode() {
+    return isSolved() ? secretCode : null;
   }
 
   @PrePersist
