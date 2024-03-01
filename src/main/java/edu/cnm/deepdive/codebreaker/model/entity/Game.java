@@ -21,6 +21,10 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -58,10 +62,14 @@ public class Game {
   private Instant created;
 
   @Column(nullable = false, updatable = false)
+  @Min(1)
+  @Max(MAX_CODE_LENGTH)
   private int length;
 
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_POOL_LENGTH)
+  @NotEmpty
+  @Size(max = MAX_POOL_LENGTH)
   private String pool;
 
   @NonNull
