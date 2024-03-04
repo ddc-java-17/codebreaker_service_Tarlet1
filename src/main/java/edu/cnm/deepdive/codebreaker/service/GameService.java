@@ -77,7 +77,7 @@ public class GameService implements
   @Override
   public Guess getGuess(UUID gameKey, UUID guessKey, User user) {
     return guessRepository
-        .findGuessByGameAndGuessKeysAndUser(guessKey, gameKey, user)
+        .findGuessByGameAndGuessKeysAndUser(gameKey, guessKey, user)
         .orElseThrow();
   }
 
@@ -129,7 +129,7 @@ public class GameService implements
         .mapToInt((entry) ->
             Math.min(entry.getValue(), codeOccurences.getOrDefault(entry.getKey(), 0)))
         .sum();
-    return new int[]{close, correct};
+    return new int[]{correct, close};
   }
 
 }
