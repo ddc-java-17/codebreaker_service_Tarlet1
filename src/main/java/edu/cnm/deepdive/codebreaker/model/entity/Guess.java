@@ -18,6 +18,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotEmpty;
 import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,6 +50,7 @@ public class Guess {
   private Instant created;
 
   @Column(nullable = false, updatable = false, length = Game.MAX_CODE_LENGTH)
+  @NotEmpty
   private String guessText;
 
   @Column(nullable = false, updatable = false)
