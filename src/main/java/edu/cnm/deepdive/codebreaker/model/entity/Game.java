@@ -72,6 +72,10 @@ public class Game {
   @Size(max = MAX_POOL_LENGTH)
   private String pool;
 
+  @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
+  private int poolSize;
+
   @NonNull
   @Column(nullable = false, updatable = false, length = MAX_CODE_LENGTH) // TODO: 2/28/2024 Investigate how database determines lengths.
   @JsonIgnore
@@ -119,6 +123,14 @@ public class Game {
 
   public void setPool(@NonNull String pool) {
     this.pool = pool;
+  }
+
+  public int getPoolSize() {
+    return poolSize;
+  }
+
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
   }
 
   @NonNull

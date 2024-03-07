@@ -12,16 +12,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,7 +37,7 @@ import org.springframework.lang.NonNull;
 @Table(name = "user_profile")
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"key", "created", "modified", "displayName"})
-public class User {
+public class User implements UserPublic {
 
   @Id
   @NonNull
@@ -75,11 +81,32 @@ public class User {
   @JsonIgnore
   private final List<Game> games = new LinkedList<>();
 
+  @ManyToMany(fetch = FetchType.LAZY,
+      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
+  )
+  @JoinTable(name = "user_following",
+      uniqueConstraints = @UniqueConstraint(columnNames = {"followed_id", "follower_id"}),
+      joinColumns = @JoinColumn(name = "follower_id", nullable = false),
+      inverseJoinColumns = @JoinColumn(name = "followed_id", nullable = false)
+  )
+  @OrderBy("displayName")
+  @JsonIgnore
+  private final Set<User> followedUsers = new LinkedHashSet<>();
+
+  @ManyToMany(mappedBy = "followedUsers",
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
+  )
+  @OrderBy("displayName")
+  @JsonIgnore
+  private final Set<User> followingUsers = new LinkedHashSet<>();
+
   @NonNull
   public Long getId() {
     return id;
   }
 
+  @Override
   @NonNull
   public UUID getKey() {
     return key;
@@ -95,6 +122,15 @@ public class User {
     return modified;
   }
 
+  public Set<User> getFollowedUsers() {
+    return followedUsers;
+  }
+
+  public Set<User> getFollowingUsers() {
+    return followingUsers;
+  }
+
+  @Override
   @NonNull
   public String getDisplayName() {
     return displayName;
