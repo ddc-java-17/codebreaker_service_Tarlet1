@@ -18,13 +18,13 @@ public class RankingService implements AbstractRankingService {
 
   @Override
   public List<Ranking> getWithoutThreshold(int poolSize, int length) {
-    return rankingRepository.findAllByPoolSizeAndLengthOrderByAvgGuessCountAscAvgDurationAsc(poolSize, length);
+    return rankingRepository.findAllByIdPoolSizeAndIdLengthOrderByAvgGuessCountAscAvgDurationAsc(poolSize, length);
   }
 
   @Override
   public List<Ranking> getWithThreshold(int poolSize, int length, int gamesThreshold) {
     return rankingRepository
-        .findAllByPoolSizeAndLengthAndGameCountGreaterThanEqualOrderByAvgGuessCountAscAvgDurationAsc(
+        .findAllByIdPoolSizeAndIdLengthAndGameCountGreaterThanEqualOrderByAvgGuessCountAscAvgDurationAsc(
             poolSize, length, gamesThreshold);
   }
 

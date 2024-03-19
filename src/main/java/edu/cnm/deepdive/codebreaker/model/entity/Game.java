@@ -33,6 +33,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.NonNull;
 
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(indexes = @Index(columnList = "user_id, created"))
 @JsonInclude(Include.NON_NULL)
